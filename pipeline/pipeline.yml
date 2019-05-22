@@ -2,17 +2,27 @@ resources:
 - name: git-assets
   type: git
   source:
-    uri: https://github.com/mattsday/spring-boot-pcf-demo
-    
+    uri: https://github.com/mmcvay-pivotal/spring-boot-pcf-demo
+
 - name: release
   type: s3
   source:
-    bucket: ((aws-bucket-name))
-    region_name: ((aws-region-name))
-    access_key_id: ((aws-access-key))
-    secret_access_key: ((aws-secret-key))
-    versioned_file: ((aws-file-name))
-    
+    regexp: demo-(.*).jar
+    endpoint: http://192.168.99.100:9000
+    bucket: dxc
+    access_key_id: miniokey
+    secret_access_key: miniosecretkey
+    disable_ssl: true
+
+#- name: release
+#  type: s3
+#  source:
+#    bucket: ((aws-bucket-name))
+#    region_name: ((aws-region-name))
+#    access_key_id: ((aws-access-key))
+#    secret_access_key: ((aws-secret-key))
+#    versioned_file: ((aws-file-name))
+
 - name: PCF
   type: cf
   source:
@@ -22,7 +32,7 @@ resources:
     organization: ((pcf-org))
     space: ((pcf-space))
     skip_cert_check: false
-    
+
 jobs:
 - name: build-artifact
   serial: true
@@ -36,7 +46,7 @@ jobs:
     params:
       file: mvn-package-output/demo-0.0.1-SNAPSHOT.jar
       acl: public-read
-      
+
 - name: deploy-app
   serial: true
   public: true
@@ -119,5 +129,3 @@ jobs:
       CF_USER: ((pcf-username))
       CF_PWD: ((pcf-password))
       CF_SPACE: ((pcf-space))
-      
-      
